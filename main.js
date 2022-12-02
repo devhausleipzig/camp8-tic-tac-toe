@@ -27,9 +27,9 @@ var winGroups = [
     ["0-0", "0-1", "0-2"],
     ["1-0", "1-1", "1-2"],
     ["2-0", "2-1", "2-2"],
-    ["0-0", "0-1", "0-2"],
-    ["1-0", "1-1", "1-2"],
-    ["2-0", "2-1", "2-2"],
+    ["0-0", "1-0", "2-0"],
+    ["1-1", "1-1", "1-1"],
+    ["0-2", "1-2", "2-2"],
     ["0-0", "1-1", "2-2"],
     ["2-0", "1-1", "0-2"]
 ];
@@ -43,7 +43,6 @@ function checkIfWin() {
             cell1.markedBy == cell2.markedBy &&
             cell2.markedBy == cell3.markedBy &&
             cell3.markedBy == cell1.markedBy;
-        console.log("Check win;", cell1, cell2, cell3, "isWinner:".concat(winner));
         if (winner) {
             return true;
         }
