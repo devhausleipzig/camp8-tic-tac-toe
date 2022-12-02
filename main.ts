@@ -27,6 +27,9 @@ function idToCoord(id: string): Coordinate {
 
 // grab DOM elements
 const gameGrid = document.querySelector("#game-grid") as Element;
+const currentPlayerElement = document.querySelector(
+	"#current-player"
+) as Element;
 
 // settings
 const gridSize = 3;
@@ -40,6 +43,8 @@ const players: Array<Player> = [
 
 let turn = 0;
 
+currentPlayerElement.textContent = `The current player is: ${players[0].name}`;
+
 const gameState: Record<string, CellState> = {};
 
 // creating game grid
@@ -49,7 +54,7 @@ for (let row = 0; row < gridSize; row++) {
 		const gridCell = document.createElement("div");
 		gridCell.classList.add(...gridCellStyles);
 
-		// generate ID and store data
+		// generate ID and initialize cell state
 		const id = coordToId([row, col]);
 		gridCell.id = id;
 
@@ -64,20 +69,31 @@ for (let row = 0; row < gridSize; row++) {
 		// add eventListener to gridCell
 		gridCell.addEventListener("click", (event) => {
 			// need to know which player's turn it is
-			// whichever players turn it is, add their mark to the 'marked' key for a specific cell in the gameState
-			const cellState = gameState[id];
-
 			const currentPlayer = players[turn];
 
-			cellState.markedBy = currentPlayer.name;
+			// whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
+			const cellState = gameState[id];
 
-			// update that cell so the mark shows visually
-			gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
+			const isMarked = Boolean(cellState.markedBy);
+
+			if (!isMarked) {
+				cellState.markedBy = currentPlayer.name;
+
+				// update this cell so the mark shows visually
+				gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
 				<p class="text-[80px]">${currentPlayer.mark}</p>
-			</div>`;
+				</div>`;
 
-			// go to next turn
-			turn = (turn + 1) % players.length;
+				// check for winning conditions
+				checkIfWin();
+
+				// go to next turn, wrap to beginning if too big
+				turn = (turn + 1) % players.length;
+
+				const nextPlayer = players[turn];
+
+				currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
+			}
 		});
 	}
 }

@@ -9,6 +9,7 @@ function idToCoord(id) {
 }
 // grab DOM elements
 var gameGrid = document.querySelector("#game-grid");
+var currentPlayerElement = document.querySelector("#current-player");
 // settings
 var gridSize = 3;
 var gridCellStyles = ["w-[200px]", "h-[200px]", "border", "border-black"];
@@ -18,6 +19,7 @@ var players = [
     { name: "Player2", mark: "O", score: 0 }
 ];
 var turn = 0;
+currentPlayerElement.textContent = "The current player is: ".concat(players[0].name);
 var gameState = {};
 // creating game grid
 for (var row = 0; row < gridSize; row++) {
@@ -26,7 +28,7 @@ for (var row = 0; row < gridSize; row++) {
         // create gridCell & add styling
         var gridCell = document.createElement("div");
         (_a = gridCell.classList).add.apply(_a, gridCellStyles);
-        // generate ID and store data
+        // generate ID and initialize cell state
         var id = coordToId([row, col]);
         gridCell.id = id;
         gameState[id] = {
@@ -38,14 +40,21 @@ for (var row = 0; row < gridSize; row++) {
         // add eventListener to gridCell
         gridCell.addEventListener("click", function (event) {
             // need to know which player's turn it is
-            // whichever players turn it is, add their mark to the 'marked' key for a specific cell in the gameState
-            var cellState = gameState[id];
             var currentPlayer = players[turn];
-            cellState.markedBy = currentPlayer.name;
-            // update that cell so the mark shows visually
-            gridCell.innerHTML = "<div class=\"flex justify-center items-center h-full\">\n\t\t\t\t<p class=\"text-[80px]\">".concat(currentPlayer.mark, "</p>\n\t\t\t</div>");
-            // go to next turn
-            turn = (turn + 1) % players.length;
+            // whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
+            var cellState = gameState[id];
+            var isMarked = Boolean(cellState.markedBy);
+            if (!isMarked) {
+                cellState.markedBy = currentPlayer.name;
+                // update this cell so the mark shows visually
+                gridCell.innerHTML = "<div class=\"flex justify-center items-center h-full\">\n\t\t\t\t<p class=\"text-[80px]\">".concat(currentPlayer.mark, "</p>\n\t\t\t\t</div>");
+                // check for winning conditions
+                checkIfWin();
+                // go to next turn, wrap to beginning if too big
+                turn = (turn + 1) % players.length;
+                var nextPlayer = players[turn];
+                currentPlayerElement.textContent = "The current player is: ".concat(nextPlayer.name);
+            }
         });
     };
     for (var col = 0; col < gridSize; col++) {
