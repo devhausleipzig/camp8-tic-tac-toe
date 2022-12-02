@@ -6,6 +6,12 @@ type CellState = {
 	element: Element;
 };
 
+type Player = {
+	name: string;
+	mark: string;
+	score: number;
+};
+
 // utils
 function coordToId(coord: Coordinate): string {
 	const [row, col] = coord;
@@ -26,25 +32,13 @@ const gameGrid = document.querySelector("#game-grid") as Element;
 const gridSize = 3;
 const gridCellStyles = ["w-[200px]", "h-[200px]", "border", "border-black"];
 
-const gameState: Record<string, CellState> = {};
+// initialize game state
+const players: Array<Player> = [
+	{ name: "Player1", mark: "X", score: 0 },
+	{ name: "Player2", mark: "O", score: 0 }
+];
 
-/*
-{
-	"0-0": {
-		marked: null,
-		element: DOMElement
-	},
-	"0-1": {
-		marked: null,
-		element: DOMElement
-	},
-	"0-2": {
-		marked: null,
-		element: DOMElement
-	}
-	...
-}
-*/
+const gameState: Record<string, CellState> = {};
 
 // creating game grid
 for (let row = 0; row < gridSize; row++) {
@@ -64,5 +58,15 @@ for (let row = 0; row < gridSize; row++) {
 
 		// append gridCell to game gameGrid
 		gameGrid.appendChild(gridCell);
+
+		// add eventListener to gridCell
+		gridCell.addEventListener("click", (event) => {
+			// need to know which player's turn it is
+			// whichever players turn it is, add their mark to the 'marked' key for a specific cell in the gameState
+			const cellState = gameState[id];
+			cellState.marked = "marked";
+			// update that cell so the mark shows visually
+			gridCell.innerText = "marked";
+		});
 	}
 }

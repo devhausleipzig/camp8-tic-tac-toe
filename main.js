@@ -1,4 +1,3 @@
-var _a;
 // utils
 function coordToId(coord) {
     var row = coord[0], col = coord[1];
@@ -13,27 +12,16 @@ var gameGrid = document.querySelector("#game-grid");
 // settings
 var gridSize = 3;
 var gridCellStyles = ["w-[200px]", "h-[200px]", "border", "border-black"];
+// initialize game state
+var players = [
+    { name: "Player1", mark: "X", score: 0 },
+    { name: "Player2", mark: "O", score: 0 }
+];
 var gameState = {};
-/*
-{
-    "0-0": {
-        marked: null,
-        element: DOMElement
-    },
-    "0-1": {
-        marked: null,
-        element: DOMElement
-    },
-    "0-2": {
-        marked: null,
-        element: DOMElement
-    }
-    ...
-}
-*/
 // creating game grid
 for (var row = 0; row < gridSize; row++) {
-    for (var col = 0; col < gridSize; col++) {
+    var _loop_1 = function (col) {
+        var _a;
         // create gridCell & add styling
         var gridCell = document.createElement("div");
         (_a = gridCell.classList).add.apply(_a, gridCellStyles);
@@ -46,5 +34,17 @@ for (var row = 0; row < gridSize; row++) {
         };
         // append gridCell to game gameGrid
         gameGrid.appendChild(gridCell);
+        // add eventListener to gridCell
+        gridCell.addEventListener("click", function (event) {
+            // need to know which player's turn it is
+            // whichever players turn it is, add their mark to the 'marked' key for a specific cell in the gameState
+            var cellState = gameState[id];
+            cellState.marked = "marked";
+            // update that cell so the mark shows visually
+            gridCell.innerText = "marked";
+        });
+    };
+    for (var col = 0; col < gridSize; col++) {
+        _loop_1(col);
     }
 }
