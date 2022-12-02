@@ -72,7 +72,9 @@ for (let row = 0; row < gridSize; row++) {
 			cellState.markedBy = currentPlayer.name;
 
 			// update that cell so the mark shows visually
-			gridCell.innerText = currentPlayer.mark;
+			gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
+				<p class="text-[80px]">${currentPlayer.mark}</p>
+			</div>`;
 
 			// go to next turn
 			turn = (turn + 1) % players.length;

@@ -1869,8 +1869,20 @@ video {
   line-height: 2.5rem;
 }
 
+.text-\[80px\] {
+  font-size: 80px;
+}
+
 .font-bold {
   font-weight: 700;
+}
+
+.font-\[40px\] {
+  font-weight: 40px;
+}
+
+.font-\[80px\] {
+  font-weight: 80px;
 }
 
 .uppercase {
