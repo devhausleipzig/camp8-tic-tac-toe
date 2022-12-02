@@ -10,6 +10,7 @@ function idToCoord(id) {
 // grab DOM elements
 var gameGrid = document.querySelector("#game-grid");
 var currentPlayerElement = document.querySelector("#current-player");
+var resetGameButton = document.querySelector("#reset-game");
 // settings
 var gridSize = 3;
 var gridCellStyles = ["w-[200px]", "h-[200px]", "border", "border-black"];
@@ -36,9 +37,13 @@ function checkIfWin() {
     for (var _i = 0, winGroups_1 = winGroups; _i < winGroups_1.length; _i++) {
         var winGroup = winGroups_1[_i];
         var _a = winGroup.map(function (id) { return gameState[id]; }), cell1 = _a[0], cell2 = _a[1], cell3 = _a[2];
-        var winner = cell1.markedBy == cell2.markedBy &&
+        var winner = cell1.markedBy != null &&
+            cell2.markedBy != null &&
+            cell3.markedBy != null &&
+            cell1.markedBy == cell2.markedBy &&
             cell2.markedBy == cell3.markedBy &&
             cell3.markedBy == cell1.markedBy;
+        console.log("Check win;", cell1, cell2, cell3, "isWinner:".concat(winner));
         if (winner) {
             return true;
         }
@@ -48,50 +53,64 @@ function checkIfWin() {
 function displayWinner() {
     currentPlayerElement.textContent = "\n\tWINNER WINNER CHICKEN DINNER; Congrats to ".concat(players[turn].name, "!\n\t");
 }
-// creating game grid
-for (var row = 0; row < gridSize; row++) {
-    var _loop_1 = function (col) {
-        var _a;
-        // create gridCell & add styling
-        var gridCell = document.createElement("div");
-        (_a = gridCell.classList).add.apply(_a, gridCellStyles);
-        // generate ID and initialize cell state
-        var id = coordToId([row, col]);
-        gridCell.id = id;
-        gameState[id] = {
-            markedBy: null,
-            element: gridCell
-        };
-        // append gridCell to game gameGrid
-        gameGrid.appendChild(gridCell);
-        // add eventListener to gridCell
-        gridCell.addEventListener("click", function (event) {
-            if (!frozen) {
-                // need to know which player's turn it is
-                var currentPlayer = players[turn];
-                // whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
-                var cellState = gameState[id];
-                var isMarked = Boolean(cellState.markedBy);
-                if (!isMarked) {
-                    cellState.markedBy = currentPlayer.name;
-                    // update this cell so the mark shows visually
-                    gridCell.innerHTML = "<div class=\"flex justify-center items-center h-full\">\n\t\t\t\t<p class=\"text-[80px]\">".concat(currentPlayer.mark, "</p>\n\t\t\t\t</div>");
-                    // check for winning conditions
-                    var winner = checkIfWin();
-                    if (winner) {
-                        displayWinner();
-                        frozen = true;
-                        return;
+function initializeGrid() {
+    // creating game grid
+    for (var row = 0; row < gridSize; row++) {
+        var _loop_1 = function (col) {
+            var _a;
+            // create gridCell & add styling
+            var gridCell = document.createElement("div");
+            (_a = gridCell.classList).add.apply(_a, gridCellStyles);
+            // generate ID and initialize cell state
+            var id = coordToId([row, col]);
+            gridCell.id = id;
+            gameState[id] = {
+                markedBy: null,
+                element: gridCell
+            };
+            // append gridCell to game gameGrid
+            gameGrid.appendChild(gridCell);
+            // add eventListener to gridCell
+            gridCell.addEventListener("click", function (event) {
+                if (!frozen) {
+                    // need to know which player's turn it is
+                    var currentPlayer = players[turn];
+                    // whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
+                    var cellState = gameState[id];
+                    var isMarked = Boolean(cellState.markedBy);
+                    if (!isMarked) {
+                        cellState.markedBy = currentPlayer.name;
+                        // update this cell so the mark shows visually
+                        gridCell.innerHTML = "<div class=\"flex justify-center items-center h-full\">\n\t\t\t\t<p class=\"text-[80px]\">".concat(currentPlayer.mark, "</p>\n\t\t\t\t</div>");
+                        // check for winning conditions
+                        var winner = checkIfWin();
+                        if (winner) {
+                            displayWinner();
+                            frozen = true;
+                            return;
+                        }
+                        // go to next turn, wrap to beginning if too big
+                        turn = (turn + 1) % players.length;
+                        var nextPlayer = players[turn];
+                        currentPlayerElement.textContent = "The current player is: ".concat(nextPlayer.name);
                     }
-                    // go to next turn, wrap to beginning if too big
-                    turn = (turn + 1) % players.length;
-                    var nextPlayer = players[turn];
-                    currentPlayerElement.textContent = "The current player is: ".concat(nextPlayer.name);
                 }
-            }
-        });
-    };
-    for (var col = 0; col < gridSize; col++) {
-        _loop_1(col);
+            });
+        };
+        for (var col = 0; col < gridSize; col++) {
+            _loop_1(col);
+        }
     }
 }
+function resetGrid() {
+    while (gameGrid.lastChild) {
+        gameGrid.removeChild(gameGrid.lastChild);
+    }
+    frozen = false;
+    turn = 0;
+    gameState = {};
+    currentPlayerElement.textContent = "The current player is: ".concat(players[0].name);
+    initializeGrid();
+}
+resetGameButton.addEventListener("click", resetGrid);
+initializeGrid();

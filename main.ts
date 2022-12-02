@@ -27,9 +27,12 @@ function idToCoord(id: string): Coordinate {
 
 // grab DOM elements
 const gameGrid = document.querySelector("#game-grid") as Element;
+
 const currentPlayerElement = document.querySelector(
 	"#current-player"
 ) as Element;
+
+const resetGameButton = document.querySelector("#reset-game") as Element;
 
 // settings
 const gridSize = 3;
@@ -47,7 +50,7 @@ let frozen = false;
 
 currentPlayerElement.textContent = `The current player is: ${players[0].name}`;
 
-const gameState: Record<string, CellState> = {};
+let gameState: Record<string, CellState> = {};
 
 const winGroups = [
 	["0-0", "0-1", "0-2"],
@@ -65,9 +68,14 @@ function checkIfWin() {
 		const [cell1, cell2, cell3] = winGroup.map((id) => gameState[id]);
 
 		const winner =
+			cell1.markedBy != null &&
+			cell2.markedBy != null &&
+			cell3.markedBy != null &&
 			cell1.markedBy == cell2.markedBy &&
 			cell2.markedBy == cell3.markedBy &&
 			cell3.markedBy == cell1.markedBy;
+
+		console.log("Check win;", cell1, cell2, cell3, `isWinner:${winner}`);
 
 		if (winner) {
 			return true;
@@ -83,61 +91,80 @@ function displayWinner() {
 	`;
 }
 
-// creating game grid
-for (let row = 0; row < gridSize; row++) {
-	for (let col = 0; col < gridSize; col++) {
-		// create gridCell & add styling
-		const gridCell = document.createElement("div");
-		gridCell.classList.add(...gridCellStyles);
+function initializeGrid() {
+	// creating game grid
+	for (let row = 0; row < gridSize; row++) {
+		for (let col = 0; col < gridSize; col++) {
+			// create gridCell & add styling
+			const gridCell = document.createElement("div");
+			gridCell.classList.add(...gridCellStyles);
 
-		// generate ID and initialize cell state
-		const id = coordToId([row, col]);
-		gridCell.id = id;
+			// generate ID and initialize cell state
+			const id = coordToId([row, col]);
+			gridCell.id = id;
 
-		gameState[id] = {
-			markedBy: null,
-			element: gridCell
-		};
+			gameState[id] = {
+				markedBy: null,
+				element: gridCell
+			};
 
-		// append gridCell to game gameGrid
-		gameGrid.appendChild(gridCell);
+			// append gridCell to game gameGrid
+			gameGrid.appendChild(gridCell);
 
-		// add eventListener to gridCell
-		gridCell.addEventListener("click", (event) => {
-			if (!frozen) {
-				// need to know which player's turn it is
-				const currentPlayer = players[turn];
+			// add eventListener to gridCell
+			gridCell.addEventListener("click", (event) => {
+				if (!frozen) {
+					// need to know which player's turn it is
+					const currentPlayer = players[turn];
 
-				// whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
-				const cellState = gameState[id];
+					// whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
+					const cellState = gameState[id];
 
-				const isMarked = Boolean(cellState.markedBy);
+					const isMarked = Boolean(cellState.markedBy);
 
-				if (!isMarked) {
-					cellState.markedBy = currentPlayer.name;
+					if (!isMarked) {
+						cellState.markedBy = currentPlayer.name;
 
-					// update this cell so the mark shows visually
-					gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
+						// update this cell so the mark shows visually
+						gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
 				<p class="text-[80px]">${currentPlayer.mark}</p>
 				</div>`;
 
-					// check for winning conditions
-					const winner = checkIfWin();
+						// check for winning conditions
+						const winner = checkIfWin();
 
-					if (winner) {
-						displayWinner();
-						frozen = true;
-						return;
+						if (winner) {
+							displayWinner();
+							frozen = true;
+							return;
+						}
+
+						// go to next turn, wrap to beginning if too big
+						turn = (turn + 1) % players.length;
+
+						const nextPlayer = players[turn];
+
+						currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
 					}
-
-					// go to next turn, wrap to beginning if too big
-					turn = (turn + 1) % players.length;
-
-					const nextPlayer = players[turn];
-
-					currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
 				}
-			}
-		});
+			});
+		}
 	}
 }
+
+function resetGrid() {
+	while (gameGrid.lastChild) {
+		gameGrid.removeChild(gameGrid.lastChild);
+	}
+
+	frozen = false;
+	turn = 0;
+	gameState = {};
+	currentPlayerElement.textContent = `The current player is: ${players[0].name}`;
+
+	initializeGrid();
+}
+
+resetGameButton.addEventListener("click", resetGrid);
+
+initializeGrid();
