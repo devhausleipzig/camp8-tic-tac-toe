@@ -13,13 +13,37 @@ var gameGrid = document.querySelector("#game-grid");
 // settings
 var gridSize = 3;
 var gridCellStyles = ["w-[200px]", "h-[200px]", "border", "border-black"];
+var gameState = {};
+/*
+{
+    "0-0": {
+        marked: null,
+        element: DOMElement
+    },
+    "0-1": {
+        marked: null,
+        element: DOMElement
+    },
+    "0-2": {
+        marked: null,
+        element: DOMElement
+    }
+    ...
+}
+*/
 // creating game grid
 for (var row = 0; row < gridSize; row++) {
     for (var col = 0; col < gridSize; col++) {
         // create gridCell & add styling
         var gridCell = document.createElement("div");
         (_a = gridCell.classList).add.apply(_a, gridCellStyles);
-        gridCell.id = coordToId([row, col]);
+        // generate ID and store data
+        var id = coordToId([row, col]);
+        gridCell.id = id;
+        gameState[id] = {
+            marked: null,
+            element: gridCell
+        };
         // append gridCell to game gameGrid
         gameGrid.appendChild(gridCell);
     }
