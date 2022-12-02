@@ -15,3 +15,17 @@ for (let row = 0; row < gridSize; row++) {
 		gameGrid.appendChild(gridCell);
 	}
 }
+
+type Coordinate = [number, number];
+
+function coordToId(coord: Coordinate): string {
+	const [row, col] = coord;
+
+	return `${row}-${col}`;
+}
+
+function idToCoord(id: string): Coordinate {
+	const [row, col] = id.split("-").map((elem) => Number(elem));
+
+	return [row, col];
+}
