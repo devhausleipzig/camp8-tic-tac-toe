@@ -2,7 +2,7 @@
 type Coordinate = [number, number];
 
 type CellState = {
-	marked: string | null;
+	markedBy: string | null;
 	element: Element;
 };
 
@@ -38,6 +38,8 @@ const players: Array<Player> = [
 	{ name: "Player2", mark: "O", score: 0 }
 ];
 
+let turn = 0;
+
 const gameState: Record<string, CellState> = {};
 
 // creating game grid
@@ -52,7 +54,7 @@ for (let row = 0; row < gridSize; row++) {
 		gridCell.id = id;
 
 		gameState[id] = {
-			marked: null,
+			markedBy: null,
 			element: gridCell
 		};
 
@@ -64,9 +66,16 @@ for (let row = 0; row < gridSize; row++) {
 			// need to know which player's turn it is
 			// whichever players turn it is, add their mark to the 'marked' key for a specific cell in the gameState
 			const cellState = gameState[id];
-			cellState.marked = "marked";
+
+			const currentPlayer = players[turn];
+
+			cellState.markedBy = currentPlayer.name;
+
 			// update that cell so the mark shows visually
-			gridCell.innerText = "marked";
+			gridCell.innerText = currentPlayer.mark;
+
+			// go to next turn
+			turn = (turn + 1) % players.length;
 		});
 	}
 }

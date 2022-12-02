@@ -17,6 +17,7 @@ var players = [
     { name: "Player1", mark: "X", score: 0 },
     { name: "Player2", mark: "O", score: 0 }
 ];
+var turn = 0;
 var gameState = {};
 // creating game grid
 for (var row = 0; row < gridSize; row++) {
@@ -29,7 +30,7 @@ for (var row = 0; row < gridSize; row++) {
         var id = coordToId([row, col]);
         gridCell.id = id;
         gameState[id] = {
-            marked: null,
+            markedBy: null,
             element: gridCell
         };
         // append gridCell to game gameGrid
@@ -39,9 +40,12 @@ for (var row = 0; row < gridSize; row++) {
             // need to know which player's turn it is
             // whichever players turn it is, add their mark to the 'marked' key for a specific cell in the gameState
             var cellState = gameState[id];
-            cellState.marked = "marked";
+            var currentPlayer = players[turn];
+            cellState.markedBy = currentPlayer.name;
             // update that cell so the mark shows visually
-            gridCell.innerText = "marked";
+            gridCell.innerText = currentPlayer.mark;
+            // go to next turn
+            turn = (turn + 1) % players.length;
         });
     };
     for (var col = 0; col < gridSize; col++) {
