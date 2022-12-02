@@ -1,3 +1,6 @@
+import { Coordinate } from "./types";
+import { idToCoord, coordToId } from "./utils";
+
 const gameGrid = document.querySelector("#game-grid") as Element;
 
 const gridSize = 3;
@@ -9,23 +12,9 @@ for (let row = 0; row < gridSize; row++) {
 		// create gridCell & add styling
 		const gridCell = document.createElement("div");
 		gridCell.classList.add(...gridCellStyles);
-		gridCell.id = `${row}-${col}`;
+		gridCell.id = coordToId([row, col]);
 
 		// append gridCell to game gameGrid
 		gameGrid.appendChild(gridCell);
 	}
-}
-
-type Coordinate = [number, number];
-
-function coordToId(coord: Coordinate): string {
-	const [row, col] = coord;
-
-	return `${row}-${col}`;
-}
-
-function idToCoord(id: string): Coordinate {
-	const [row, col] = id.split("-").map((elem) => Number(elem));
-
-	return [row, col];
 }
