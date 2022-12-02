@@ -43,9 +43,45 @@ const players: Array<Player> = [
 
 let turn = 0;
 
+let frozen = false;
+
 currentPlayerElement.textContent = `The current player is: ${players[0].name}`;
 
 const gameState: Record<string, CellState> = {};
+
+const winGroups = [
+	["0-0", "0-1", "0-2"],
+	["1-0", "1-1", "1-2"],
+	["2-0", "2-1", "2-2"],
+	["0-0", "0-1", "0-2"],
+	["1-0", "1-1", "1-2"],
+	["2-0", "2-1", "2-2"],
+	["0-0", "1-1", "2-2"],
+	["2-0", "1-1", "0-2"]
+];
+
+function checkIfWin() {
+	for (const winGroup of winGroups) {
+		const [cell1, cell2, cell3] = winGroup.map((id) => gameState[id]);
+
+		const winner =
+			cell1.markedBy == cell2.markedBy &&
+			cell2.markedBy == cell3.markedBy &&
+			cell3.markedBy == cell1.markedBy;
+
+		if (winner) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function displayWinner() {
+	currentPlayerElement.textContent = `
+	WINNER WINNER CHICKEN DINNER; Congrats to ${players[turn].name}!
+	`;
+}
 
 // creating game grid
 for (let row = 0; row < gridSize; row++) {
@@ -68,31 +104,39 @@ for (let row = 0; row < gridSize; row++) {
 
 		// add eventListener to gridCell
 		gridCell.addEventListener("click", (event) => {
-			// need to know which player's turn it is
-			const currentPlayer = players[turn];
+			if (!frozen) {
+				// need to know which player's turn it is
+				const currentPlayer = players[turn];
 
-			// whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
-			const cellState = gameState[id];
+				// whichever players turn it is, add their mark to the 'markedBy' key for a specific cell in the gameState
+				const cellState = gameState[id];
 
-			const isMarked = Boolean(cellState.markedBy);
+				const isMarked = Boolean(cellState.markedBy);
 
-			if (!isMarked) {
-				cellState.markedBy = currentPlayer.name;
+				if (!isMarked) {
+					cellState.markedBy = currentPlayer.name;
 
-				// update this cell so the mark shows visually
-				gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
+					// update this cell so the mark shows visually
+					gridCell.innerHTML = `<div class="flex justify-center items-center h-full">
 				<p class="text-[80px]">${currentPlayer.mark}</p>
 				</div>`;
 
-				// check for winning conditions
-				checkIfWin();
+					// check for winning conditions
+					const winner = checkIfWin();
 
-				// go to next turn, wrap to beginning if too big
-				turn = (turn + 1) % players.length;
+					if (winner) {
+						displayWinner();
+						frozen = true;
+						return;
+					}
 
-				const nextPlayer = players[turn];
+					// go to next turn, wrap to beginning if too big
+					turn = (turn + 1) % players.length;
 
-				currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
+					const nextPlayer = players[turn];
+
+					currentPlayerElement.textContent = `The current player is: ${nextPlayer.name}`;
+				}
 			}
 		});
 	}
